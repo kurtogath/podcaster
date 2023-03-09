@@ -1,0 +1,33 @@
+/*************************************************** TAILWIND SECTION ***************************************************/
+
+
+.light {
+    background-color: #fff;
+    color: #111;
+    transition: background-color;
+    transition-duration: 300ms;
+}
+
+/*************************************************** END TAILWIND SECTION ***************************************************/
+
+/*************************************************** SCROLLBAR SECTION ***************************************************/
+
+/* for webkit-based browsers */
+::-webkit-scrollbar {
+    width: 10px; /* width of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888; /* color of the scrollbar thumb */
+}
+
+/* for Firefox */
+::-moz-scrollbar {
+    width: 10px;
+}
+  
+::-moz-scrollbar-thumb {
+    background-color: #888;
+}
+  
+/*************************************************** END SCROLLBAR SECTION ***************************************************/
