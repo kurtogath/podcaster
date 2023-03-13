@@ -9,7 +9,10 @@ import { CardInterface } from '../src/interfaces/card';
 const Home = (): JSX.Element => {
     const [data, setData] = useState<PodcastLists | null>(null);
     const [cardData, setCardData] = useState<Array<CardInterface> | null>(null);
+    const [cardDataShown, setCardDataShown] =
+        useState<Array<CardInterface> | null>(null);
     const [number, setNumber] = useState<number>(100);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
@@ -37,10 +40,29 @@ const Home = (): JSX.Element => {
                     author: el['im:artist'].label || '',
                 })) || null;
             setCardData(carDataAux);
+            setCardDataShown(carDataAux);
         };
 
         parseData();
     }, [data]);
+
+    useEffect(() => {
+        const filterData = () => {
+            const filtered =
+                cardData?.filter(
+                    (el) =>
+                        el.name
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
+                        el.author
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase())
+                ) || null;
+            setCardDataShown(filtered);
+        };
+
+        filterData();
+    }, [searchTerm, cardData]);
 
     const fetchData = async () => {
         const urlItunes =
@@ -57,7 +79,7 @@ const Home = (): JSX.Element => {
 
     const renderListado = (): JSX.Element => {
         if (data == null) return <div />;
-        return <List cards={cardData} />;
+        return <List cards={cardDataShown} />;
     };
 
     return (
@@ -85,7 +107,9 @@ const Home = (): JSX.Element => {
                                 className='ml-2 w-3/5 rounded border border-gray-400 py-2 px-4'
                                 id='podcast-searcher'
                                 type='text'
+                                value={searchTerm}
                                 placeholder='Filter podcasts...'
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                     </div>
