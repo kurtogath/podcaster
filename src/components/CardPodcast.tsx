@@ -1,15 +1,6 @@
 import Image from 'next/image';
 import React from 'react';
-import { SafeNumber } from '../types';
-
-interface CardInterface {
-    src: string;
-    width: SafeNumber;
-    height: SafeNumber;
-    alt: string;
-    name: string;
-    description: string;
-}
+import { CardInterface } from '../interfaces';
 
 const CardPodcast: React.FC<CardInterface> = ({
     src,
@@ -17,10 +8,10 @@ const CardPodcast: React.FC<CardInterface> = ({
     height,
     alt,
     name,
-    description,
+    author,
 }): JSX.Element => {
     return (
-        <div className='flex w-full flex-col items-center'>
+        <div className='flex w-full flex-col items-center bg-white px-4 shadow-sm shadow-black'>
             <Image
                 src={src}
                 alt={alt}
@@ -30,7 +21,7 @@ const CardPodcast: React.FC<CardInterface> = ({
                 className='rounded-full'
             />
             <div className='text-lg font-bold'>{name}</div>
-            <div>{description}</div>
+            <div>{`Author: ${author}`}</div>
         </div>
     );
 };

@@ -3,13 +3,16 @@ import React from 'react';
 
 const Navbar: React.FC = (): JSX.Element => {
     return (
-        <nav className='sticky top-0 z-50 w-full px-4 py-2 text-black '>
-            <div className='mx-auto flex max-w-7xl justify-between'>
-                <div className='text-lg font-bold'>
-                    <Link href='/'>Podcaster</Link>
+        <>
+            <nav className='fixed top-0 z-50 w-full bg-white px-4 pt-4'>
+                <div className='mx-auto flex max-w-7xl justify-between'>
+                    <div className='app-title text-lg font-bold '>
+                        <Link href='/'>Podcaster</Link>
+                    </div>
                 </div>
-            </div>
-        </nav>
+                <div className='h-0.5 bg-gray-300' />
+            </nav>
+        </>
     );
 };
 

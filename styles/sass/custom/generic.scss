@@ -8,26 +8,43 @@
     transition-duration: 300ms;
 }
 
-/*************************************************** END TAILWIND SECTION ***************************************************/
+/*************************************************** GENERIC SECTION ***************************************************/
+
+body {
+    --sb-track-color: #fff;
+    --sb-thumb-color: #ff5e54;
+    --sb-size: 10px;
+    --color-blue:#33c5fd;
+  
+    scrollbar-color: var(--sb-thumb-color) 
+                     var(--sb-track-color);
+}
 
 /*************************************************** SCROLLBAR SECTION ***************************************************/
 
-/* for webkit-based browsers */
-::-webkit-scrollbar {
-    width: 10px; /* width of the scrollbar */
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #888; /* color of the scrollbar thumb */
-}
-
-/* for Firefox */
-::-moz-scrollbar {
-    width: 10px;
+body::-webkit-scrollbar {
+    width: var(--sb-size) 
 }
   
-::-moz-scrollbar-thumb {
-    background-color: #888;
+body::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 10px;
 }
   
-/*************************************************** END SCROLLBAR SECTION ***************************************************/
+body::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 10px;
+
+}
+
+.app-title{
+    // background-image: linear-gradient(to bottom right, #ff5e54, #33c5fd);
+    color: #ff5e54
+}
+
+.podcast-number{
+    color:#fff;
+    background-color:var(--color-blue);
+    font-weight: 600;
+    border-radius: 25%;
+}

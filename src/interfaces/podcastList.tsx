@@ -1,3 +1,4 @@
+import { SafeNumber } from '../types/image';
 export interface PodcastLists {
     feed: FeedInterface;
 }
@@ -58,7 +59,7 @@ interface EntryAttribute {
     scheme?: string;
     term?: string;
     href?: string;
-    height?: string;
+    height?: SafeNumber;
     amount?: string;
     currency?: string;
     rel?: string;
