@@ -8,7 +8,7 @@ interface ListProps {
 
 const List: React.FC<ListProps> = ({ cards }) => {
     return (
-        <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
+        <div className='mt-12 grid grid-cols-2 gap-14 md:grid-cols-4'>
             {cards ? (
                 cards.map((card, index) => (
                     <CardPodcast

@@ -11,19 +11,69 @@ const CardPodcast: React.FC<CardInterface> = ({
     author,
 }): JSX.Element => {
     return (
-        <div className='flex w-full flex-col items-center bg-white px-4 shadow-sm shadow-black'>
-            <Image
-                src={src}
-                alt={alt}
-                width={width}
-                height={height}
-                priority
-                className='rounded-full'
-            />
-            <div className='text-lg font-bold'>{name}</div>
-            <div>{`Author: ${author}`}</div>
+        <div className='rounded-lg bg-white shadow-lg'>
+            <div className='relative'>
+                <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform'>
+                    <Image
+                        className='h-24 w-24 rounded-full border-4 border-white object-cover object-center'
+                        src={src}
+                        alt={alt}
+                        width={width}
+                        height={height}
+                        priority
+                    />
+                </div>
+            </div>
+            <div className='pt-14'>
+                <h2 className='text-xl font-semibold text-gray-800'>{name}</h2>
+                <p className='mt-2 text-gray-600'>{`Author: ${author}`}</p>
+            </div>
         </div>
     );
 };
+
+{
+    /* <div className='overflow-hidden rounded-lg bg-white shadow-lg'>
+            <div className=''>
+                <div className='relative'>
+                    <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform'>
+                        <Image
+                            className='h-24 w-24 rounded-full border-4 border-white object-cover object-center'
+                            src={src}
+                            alt={alt}
+                            width={width}
+                            height={height}
+                            priority
+                        />
+                    </div>
+                </div>
+                <div className='pt-14'>
+                    <h2 className='text-xl font-semibold text-gray-800'>
+                        {name}
+                    </h2>
+                    <p className='mt-2 text-gray-600'>{`Author: ${author}`}</p>
+                </div>
+            </div>
+        </div> */
+}
+
+// <div className='rounded-lg bg-white shadow-lg'>
+//             <div className='relative'>
+//                 <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform'>
+//                     <Image
+//                         className='h-24 w-24 rounded-full border-4 border-white object-cover object-center'
+//                         src={src}
+//                         alt={alt}
+//                         width={width}
+//                         height={height}
+//                         priority
+//                     />
+//                 </div>
+//             </div>
+//             <div className='p-4'>
+//                 <h2 className='text-xl font-bold'>{name}</h2>
+//                 <p className='mt-2 text-gray-600'>{`Author: ${author}`}</p>
+//             </div>
+//         </div>
 
 export default CardPodcast;
