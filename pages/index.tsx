@@ -2,7 +2,6 @@ import axios from 'axios';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import List from '../src/components/list/List';
-import Navbar from '../src/components/Navbar';
 import { PodcastLists } from '../src/interfaces';
 import { CardInterface } from '../src/interfaces/card';
 
@@ -38,6 +37,7 @@ const Home = (): JSX.Element => {
                     alt: el['im:name'].label || '',
                     name: el['im:name'].label || '',
                     author: el['im:artist'].label || '',
+                    id: el.id.attributes['im:id'] || '',
                 })) || null;
             setCardData(carDataAux);
             setCardDataShown(carDataAux);
@@ -58,6 +58,9 @@ const Home = (): JSX.Element => {
                             .toLowerCase()
                             .includes(searchTerm.toLowerCase())
                 ) || null;
+
+            const num = filtered?.length || 0;
+            setNumber(num);
             setCardDataShown(filtered);
         };
 
@@ -93,8 +96,7 @@ const Home = (): JSX.Element => {
                 <link rel='icon' href='/favicon.ico' />
             </Head>
             <main className='text-center'>
-                <Navbar />
-                <div className='container mx-auto px-4 py-16'>
+                <div className='content-container container mx-auto px-4'>
                     <div className='flex flex-row justify-end py-5'>
                         <div className='flex w-1/2 items-center justify-end '>
                             <label

@@ -19,6 +19,7 @@ const List: React.FC<ListProps> = ({ cards }) => {
                         height={card.height}
                         name={card.name}
                         author={card.author}
+                        id={card.id}
                     />
                 ))
             ) : (

@@ -7,4 +7,5 @@ export interface CardInterface {
     alt: string;
     name: string;
     author: string;
+    id: string;
 }
