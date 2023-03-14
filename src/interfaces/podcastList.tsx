@@ -33,7 +33,7 @@ interface Attribute {
     type: string;
 }
 
-interface Entry {
+export interface Entry {
     category: Category;
     id: Category;
     ['im:artist']: Category;

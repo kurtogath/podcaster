@@ -5,6 +5,7 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import PodcastSidebar from '../../src/components/sidebar/PodcastSidebar';
 import { PodcastEpisodeList, PodcastInformation } from '../../src/interfaces';
 
 export const getServerSideProps = async (
@@ -67,14 +68,6 @@ const Podcast = ({
         fetchData();
     }, [id]);
 
-    useEffect(() => {
-        console.log('podcastInfo => ', podcastInfo);
-    }, [podcastInfo]);
-
-    useEffect(() => {
-        console.log('podcastList => ', podcastList);
-    }, [podcastList]);
-
     const renderLeftSide = (): JSX.Element => {
         return (
             <>
@@ -135,13 +128,13 @@ const Podcast = ({
                             .padStart(2, '0');
                         return (
                             <tr key={index} className='cursor-pointer'>
-                                <Link
-                                    href={`/podcast/${id}/episode/${el.trackId}`}
-                                >
-                                    <td className='whitespace-nowrap text-blue-500'>
+                                <td className='whitespace-nowrap text-blue-500'>
+                                    <Link
+                                        href={`/podcast/${id}/episode/${el.trackId}`}
+                                    >
                                         {el.trackName}
-                                    </td>
-                                </Link>
+                                    </Link>
+                                </td>
                                 <td className='whitespace-nowrap px-6 py-4'>
                                     {moment(el.releaseDate).format(
                                         'DD/MM/YYYY'
@@ -162,8 +155,8 @@ const Podcast = ({
         <>
             <div className='content-container container mx-auto px-4'>
                 <div className='grid grid-cols-3 gap-8'>
-                    <div className='bg-white p-6 shadow-lg'>
-                        <h1 className='mb-4'>{renderLeftSide()}</h1>
+                    <div className=''>
+                        <PodcastSidebar id={id} />
                     </div>
                     <div className='col-span-2 '>{renderRightSide()}</div>
                 </div>
