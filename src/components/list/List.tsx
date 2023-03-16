@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardInterface } from '../../interfaces/card';
-import CardPodcast from '../CardPodcast';
+import CardPodcast from '../cards/CardPodcast';
 
 interface ListProps {
     cards: CardInterface[] | null;
@@ -20,6 +20,7 @@ const List: React.FC<ListProps> = ({ cards }) => {
                         name={card.name}
                         author={card.author}
                         id={card.id}
+                        onClick={(ret: string) => card.onClick(ret)}
                     />
                 ))
             ) : (

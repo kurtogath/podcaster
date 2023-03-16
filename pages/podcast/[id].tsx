@@ -1,12 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
 import moment from 'moment';
 
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import PodcastSidebar from '../../src/components/sidebar/PodcastSidebar';
-import { PodcastEpisodeList, PodcastInformation } from '../../src/interfaces';
+import { EpisodeList, PodcastEpisodeList } from '../../src/interfaces';
 
 export const getServerSideProps = async (
     context: GetServerSidePropsContext
@@ -35,76 +35,81 @@ export const getServerSideProps = async (
 const Podcast = ({
     id,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element => {
-    const [podcastInfo, setPodcastInfo] = useState<PodcastInformation | null>(
-        null
-    );
     const [podcastList, setPodcastList] =
         useState<Array<PodcastEpisodeList> | null>(null);
+    const [fetching, setFetching] = useState<boolean>(false);
+
+    const dayInMiliseconds = 24 * 60 * 60 * 1000;
 
     useEffect(() => {
-        const fetchData = async () => {
-            const urlItunes = `https://itunes.apple.com/lookup?id=${id}&media=podcast&entity=podcastEpisode&limit=20`;
-            const url = `https://api.allorigins.win/get?url=${encodeURIComponent(
-                urlItunes
-            )}`;
+        const name = `episodeList_${id}`;
+        const storedObject = localStorage.getItem(name);
+        if (storedObject === null) {
+            fetchData();
+            return;
+        }
 
-            try {
-                const res = await axios.get(urlItunes);
-                if (res.status !== 200) {
-                    console.log(res.statusText);
-                    return;
-                }
-                const result = res.data.results;
-                const podcastInformation: PodcastInformation = result[0];
-                const podcastList: Array<PodcastEpisodeList> = result.slice(1);
-
-                setPodcastInfo(podcastInformation);
-                setPodcastList(podcastList);
-            } catch (error) {
-                console.log(error);
-            }
-        };
+        const now = new Date().getTime();
+        const dataStored: EpisodeList = JSON.parse(storedObject);
+        const time = dataStored.fetched;
+        if (now - time < dayInMiliseconds) {
+            setPodcastList(dataStored.data);
+            return;
+        }
 
         fetchData();
-    }, [id]);
+    }, [id, dayInMiliseconds]);
 
-    const renderLeftSide = (): JSX.Element => {
-        return (
-            <>
-                <div className='flex items-center justify-center pb-4'>
-                    <Image
-                        src={podcastInfo?.artworkUrl600 || ''}
-                        alt={podcastInfo?.collectionName || ''}
-                        width={120}
-                        height={120}
-                    />
-                </div>
-                <div className='h-0.5 bg-gray-300' />
-                <div className='flex flex-col justify-center pb-4'>
-                    <span className='font-semibold'>
-                        {podcastInfo?.collectionName}
-                    </span>
-                    <span className=''>{`by ${podcastInfo?.collectionName}`}</span>
-                </div>
-                <div className='h-0.5 bg-gray-300' />
-                <div className='flex flex-col justify-center pb-4'>
-                    <span className='font-semibold'>Description:</span>
-                    <span>{podcastInfo?.collectionName}</span>
-                </div>
-            </>
-        );
+    const fetchData = async () => {
+        //Remove "&limit=20" for entire episode list
+        const urlItunes = `https://itunes.apple.com/lookup?id=${id}&media=podcast&entity=podcastEpisode&limit=20`;
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(
+            urlItunes
+        )}`;
+        try {
+            setFetching(true);
+            const res = await axios.get(url);
+            setFetching(false);
+            if (res.status !== 200) {
+                console.log(res.statusText);
+                return;
+            }
+            const apiData = JSON.parse(res.data.contents);
+            const result = apiData.results;
+            const podcastList: Array<PodcastEpisodeList> = result.slice(1);
+            const now = new Date().getTime();
+            setPodcastList(podcastList);
+            //Store data
+            const storeData: EpisodeList = { data: podcastList, fetched: now };
+            localStorage.setItem(
+                `episodeList_${id}`,
+                JSON.stringify(storeData)
+            );
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    const renderRightSide = (): JSX.Element => {
-        return (
-            <>
-                <div className=' mb-5 bg-white p-6 font-semibold shadow-lg'>{`Episodes: ${podcastList?.length} `}</div>
-                <div className=' bg-white p-6 shadow-lg'>{renderTable()}</div>
-            </>
-        );
+    const convertMsToTime = (ms: number): string => {
+        // Convert ms to seconds
+        const seconds = Math.floor(ms / 1000);
+
+        // Calc hours, minutes & seconds
+        const hours = Math.floor(seconds / 3600);
+        const secondsRemaining = seconds % 3600;
+        const minutes = Math.floor(secondsRemaining / 60);
+        const finalSeconds = secondsRemaining % 60;
+        //Convert it all to string
+        const hourString: string = hours === 0 ? '' : `${hours}:`;
+        const minutesString: string = minutes.toString().padStart(2, '0');
+        const secondsString: string = finalSeconds.toString().padStart(2, '0');
+        // Crear un string con hours, minutes y seconds
+        const tiempo = `${hourString}${minutes}:${secondsString}`;
+        return tiempo;
     };
 
     const renderTable = (): JSX.Element => {
+        if (fetching) return <div> Getting data... </div>;
         return (
             <table className='w-full table-auto'>
                 <thead>
@@ -122,10 +127,6 @@ const Podcast = ({
                 </thead>
                 <tbody className='divide-y divide-gray-200 bg-white'>
                     {podcastList?.map((el, index) => {
-                        const minutos = Math.floor(el.trackTimeMillis / 60000);
-                        const segundos = ((el.trackTimeMillis % 60000) / 1000)
-                            .toFixed(1)
-                            .padStart(2, '0');
                         return (
                             <tr key={index} className='cursor-pointer'>
                                 <td className='whitespace-nowrap text-blue-500'>
@@ -141,13 +142,24 @@ const Podcast = ({
                                     )}
                                 </td>
                                 <td className='whitespace-nowrap px-6 py-4'>
-                                    {`${minutos}:${segundos}`}
+                                    {convertMsToTime(el.trackTimeMillis)}
                                 </td>
                             </tr>
                         );
                     })}
                 </tbody>
             </table>
+        );
+    };
+
+    const renderRightSide = (): JSX.Element => {
+        return (
+            <>
+                <div className=' mb-5 bg-white p-6 font-semibold shadow-lg'>{`Episodes: ${
+                    podcastList?.length || ''
+                } `}</div>
+                <div className=' bg-white p-6 shadow-lg'>{renderTable()}</div>
+            </>
         );
     };
 

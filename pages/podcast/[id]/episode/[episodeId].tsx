@@ -1,28 +1,21 @@
 import axios from 'axios';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { useEffect, useState } from 'react';
-import PodcastSidebar from '../../../src/components/sidebar/PodcastSidebar';
-import {
-    PodcastEpisodeList,
-    PodcastInformation,
-} from '../../../src/interfaces';
+import PodcastSidebar from '../../../../src/components/sidebar/PodcastSidebar';
+import { PodcastEpisodeList } from '../../../../src/interfaces';
 
 export const getServerSideProps = async (
     context: GetServerSidePropsContext
 ) => {
     if (context.params?.episodeId) {
-        const id = decodeURIComponent(
-            Array.isArray(context.params.id) ? context.params.id[0] : ''
-        );
+        let id = context.params.id ? context.params.id : '';
+        id = Array.isArray(id) ? id[0] : id;
 
-        const episodeId = parseInt(
-            decodeURIComponent(
-                Array.isArray(context.params.episodeId)
-                    ? context.params.episodeId[2]
-                    : '0'
-            ),
-            10
-        );
+        let episodeId = context.params.episodeId
+            ? context.params.episodeId
+            : '0';
+
+        episodeId = Array.isArray(episodeId) ? episodeId[0] : episodeId;
 
         return {
             props: {
@@ -35,7 +28,7 @@ export const getServerSideProps = async (
     return {
         props: {
             id: '',
-            episodeId: 0,
+            episodeId: '',
         },
     };
 };
@@ -44,9 +37,8 @@ const Episode = ({
     episodeId,
     id,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element => {
-    const [podcastInfo, setPodcastInfo] = useState<PodcastInformation | null>(
-        null
-    );
+    const [fetching, setFetching] = useState<boolean>(false);
+
     const [podcastList, setPodcastList] =
         useState<Array<PodcastEpisodeList> | null>(null);
 
@@ -56,18 +48,17 @@ const Episode = ({
             const url = `https://api.allorigins.win/get?url=${encodeURIComponent(
                 urlItunes
             )}`;
-
             try {
-                const res = await axios.get(urlItunes);
+                setFetching(true);
+                const res = await axios.get(url);
+                setFetching(false);
                 if (res.status !== 200) {
                     console.log(res.statusText);
                     return;
                 }
-                const result = res.data.results;
-                const podcastInformation: PodcastInformation = result[0];
+                const data = JSON.parse(res.data.contents);
+                const result = data.results;
                 const podcastList: Array<PodcastEpisodeList> = result.slice(1);
-
-                setPodcastInfo(podcastInformation);
                 setPodcastList(podcastList);
             } catch (error) {
                 console.log(error);
@@ -77,26 +68,30 @@ const Episode = ({
         fetchData();
     }, [id]);
 
+    const renderVideo = () => {
+        const episode = podcastList?.find(
+            (el) => el.trackId === parseInt(episodeId, 10)
+        );
+        if (fetching) return <div>Getting data...</div>;
+        if (episode == null) return <div>No se ha encontrado el episodio</div>;
+
+        return (
+            <div className='flex flex-col'>
+                <h3 className=' font-semibold'> {episode.trackName}</h3>
+                <p className='my-5'> {episode.description}</p>
+                <audio controls className='audio-controller'>
+                    <source src={episode.episodeUrl} type='audio/mpeg' />
+                    Tu navegador no soporta la reproducción de audio.
+                </audio>
+            </div>
+        );
+    };
+
     const renderRightSide = (): JSX.Element => {
         return (
             <>
                 <div className=' bg-white p-6 shadow-lg'>{renderVideo()}</div>
             </>
-        );
-    };
-
-    const renderVideo = () => {
-        const episode = podcastList?.find((el) => el.trackId === episodeId);
-        if (episode == null) return <div>No se ha encontrado el episodio</div>;
-        return (
-            <div className='flex flex-col'>
-                <h3 className='font-semibold'> {episode.trackName}</h3>
-                <p className='font-semibold'> {episode.description}</p>
-                <audio controls>
-                    <source src={episode.episodeUrl} type='audio/mpeg' />
-                    Tu navegador no soporta la reproducción de audio.
-                </audio>
-            </div>
         );
     };
 

@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import List from '../src/components/list/List';
-import { PodcastLists } from '../src/interfaces';
+import { Entry, PodcastLists, SelectedPodcast } from '../src/interfaces';
 import { CardInterface } from '../src/interfaces/card';
 
 const Home = (): JSX.Element => {
@@ -12,20 +13,25 @@ const Home = (): JSX.Element => {
         useState<Array<CardInterface> | null>(null);
     const [number, setNumber] = useState<number>(100);
     const [searchTerm, setSearchTerm] = useState('');
+    const [fetching, setFetching] = useState<boolean>(false);
+
+    const LOCAL_STORAGE_KEY = 'podcastList';
+    const dayInMiliseconds = 24 * 60 * 60 * 1000;
 
     useEffect(() => {
-        let intervalId: NodeJS.Timeout | null = null;
-
-        fetchData(); // First Call
-
-        intervalId = setInterval(() => {
-            fetchData(); //Every 24 hours calls the function
-        }, 24 * 60 * 60 * 1000);
-
-        return () => {
-            if (intervalId) clearInterval(intervalId); // clear interval when component is disassembled
-        };
-    }, []);
+        const storedObject = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const storedTime = localStorage.getItem(`${LOCAL_STORAGE_KEY}_time`);
+        const now = new Date().getTime();
+        if (storedObject && storedTime) {
+            const object = JSON.parse(storedObject);
+            const time = parseInt(storedTime, 10);
+            if (now - time < dayInMiliseconds) {
+                setData(object);
+                return;
+            }
+        }
+        fetchData();
+    }, [dayInMiliseconds]);
 
     useEffect(() => {
         const parseData = () => {
@@ -38,15 +44,17 @@ const Home = (): JSX.Element => {
                     name: el['im:name'].label || '',
                     author: el['im:artist'].label || '',
                     id: el.id.attributes['im:id'] || '',
+                    onClick: (id: string) => savePodcastLocalStorage(id),
                 })) || null;
             setCardData(carDataAux);
             setCardDataShown(carDataAux);
         };
 
         parseData();
-    }, [data]);
+    }, [data, dayInMiliseconds]);
 
     useEffect(() => {
+        //Filter data by podcast name and author
         const filterData = () => {
             const filtered =
                 cardData?.filter(
@@ -72,15 +80,55 @@ const Home = (): JSX.Element => {
             'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json';
 
         try {
+            setFetching(true);
             const res = await axios.get(urlItunes);
+            setFetching(false);
             const dataObj: PodcastLists = res.data;
             setData(dataObj);
+            const now = new Date().getTime();
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataObj));
+            localStorage.setItem(`${LOCAL_STORAGE_KEY}_time`, now.toString());
         } catch (error) {
             console.log(error);
         }
     };
 
+    const savePodcast = (name: string, obj: SelectedPodcast): void => {
+        const podcastData = JSON.stringify(obj);
+        localStorage.setItem(name, podcastData);
+    };
+
+    const savePodcastLocalStorage = (id: string): void => {
+        const selectedPodcast = data?.feed.entry.find(
+            (el: Entry) => el.id.attributes['im:id'] === id
+        );
+        if (!selectedPodcast) return;
+
+        const NOW = new Date().getTime();
+        const podcastData: SelectedPodcast = {
+            data: selectedPodcast,
+            fetched: NOW,
+        };
+        const name = `podcast_${id}`;
+        const podcastObject = localStorage.getItem(name);
+
+        //If we dont have the podcast stored on out localStorage
+        if (!podcastObject) {
+            savePodcast(name, podcastData);
+            return;
+        }
+
+        const object: SelectedPodcast = JSON.parse(podcastObject);
+        const time = object.fetched;
+
+        // If more than 24 hours have passed since the last API call  for this
+        if (NOW - time < dayInMiliseconds) {
+            savePodcast(name, podcastData);
+        }
+    };
+
     const renderListado = (): JSX.Element => {
+        if (fetching) return <div>Getting data...</div>;
         if (data == null) return <div />;
         return <List cards={cardDataShown} />;
     };

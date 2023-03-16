@@ -8,4 +8,5 @@ export interface CardInterface {
     name: string;
     author: string;
     id: string;
+    onClick: Function;
 }

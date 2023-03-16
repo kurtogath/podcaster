@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { CardInterface } from '../interfaces';
+import { CardInterface } from '../../interfaces';
 
 const CardPodcast: React.FC<CardInterface> = ({
     src,
@@ -11,10 +11,11 @@ const CardPodcast: React.FC<CardInterface> = ({
     name,
     author,
     id,
+    onClick,
 }): JSX.Element => {
     return (
         <div className='rounded-lg bg-white shadow-lg'>
-            <Link href={`/podcast/${id}`}>
+            <Link href={`/podcast/${id}`} onClick={(e) => onClick(id)}>
                 <div className='relative'>
                     <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform'>
                         <Image

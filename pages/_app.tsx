@@ -1,7 +1,7 @@
 import { Inter } from '@next/font/google';
 import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
-import Navbar from '../src/components/Navbar';
+import Navbar from '../src/components/navbar/Navbar';
 
 import '../styles/sass/main.scss';
 
